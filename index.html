@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#ffffff" />
+<title>Money Guard — Protect Your Money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafbfc; --surface: #ffffff; --surface-2: #f8f9fb; --surface-3: #f3f4f6;
+    --border: #e8eaed; --border-light: #f0f2f5; --text: #0a0e1a; --text-2: #4b5563;
+    --text-3: #9ca3af; --primary: #0f172a; --accent: #10b981; --accent-hover: #059669;
+    --accent-soft: #ecfdf5; --accent-softer: #d1fae5; --danger: #ef4444;
+    --danger-hover: #dc2626; --danger-soft: #fef2f2; --warning: #f59e0b;
+    --warning-soft: #fffbeb; --info: #3b82f6; --info-soft: #eff6ff;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.03); --shadow-sm: 0 2px 4px rgba(0,0,0,.04);
+    --shadow: 0 4px 12px rgba(0,0,0,.06); --shadow-md: 0 8px 24px rgba(0,0,0,.08);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,.12); --shadow-xl: 0 24px 64px rgba(0,0,0,.16);
+    --radius-sm: 8px; --radius: 12px; --radius-md: 16px; --radius-lg: 20px;
+    --radius-xl: 24px; --radius-2xl: 32px;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+  input, select, textarea { font-family: inherit; font-size: 15px; }
+  a { color: inherit; text-decoration: none; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--bg); position: relative; padding-bottom: 100px; }
+  @media (min-width: 768px) {
+    body { background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%); }
+    .app { max-width: 480px; margin: 24px auto; border-radius: var(--radius-2xl); box-shadow: var(--shadow-xl); min-height: calc(100vh - 48px); overflow: hidden; }
+  }
+  .view { display: none; animation: fadeIn 0.3s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.1); opacity: 0.5; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .topbar { position: sticky; top: 0; background: rgba(255,255,255,.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border-light); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+  .topbar h1 { font-size: 18px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px; }
+  .topbar .logo-mark { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary) 0%, #334155 100%); border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; box-shadow: var(--shadow-sm); }
+  .icon-btn { width: 40px; height: 40px; border-radius: var(--radius); background: var(--surface-2); display: inline-flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text); transition: var(--transition); border: 1px solid var(--border-light); }
+  .icon-btn:hover { background: var(--surface-3); transform: translateY(-1px); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: var(--radius); font-weight: 600; font-size: 15px; transition: var(--transition); width: 100%; }
+  .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%); color: #fff; box-shadow: 0 4px 12px rgba(15,23,42,.15); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(15,23,42,.2); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,.25); }
+  .btn-accent:hover { transform: translateY(-2px); }
+  .btn-outline { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); box-shadow: var(--shadow-xs); }
+  .btn-outline:hover { border-color: var(--primary); background: var(--surface-2); }
+  .btn-danger { background: linear-gradient(135deg, var(--danger) 0%, var(--danger-hover) 100%); color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,.2); }
+  .btn-danger:hover { transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: var(--text-2); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .btn-sm { padding: 10px 16px; font-size: 13px; width: auto; }
+  .btn-google { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); font-weight: 600; box-shadow: var(--shadow-xs); }
+  .btn-google:hover { border-color: var(--text-3); background: var(--surface-2); }
+  .card { background: var(--surface); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); transition: var(--transition); }
+  .card:hover { box-shadow: var(--shadow); }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; letter-spacing: 0.2px; }
+  .input, .select, .textarea { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); transition: var(--transition); font-size: 15px; }
+  .input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(15,23,42,.08); }
+  .textarea { resize: vertical; min-height: 90px; }
+  .input-row { display: flex; gap: 12px; }
+  .input-row > * { flex: 1; }
+  .auth-wrap { min-height: 100vh; padding: 48px 24px 32px; display: flex; flex-direction: column; justify-content: center; }
+  .auth-logo { text-align: center; margin-bottom: 40px; }
+  .auth-logo .logo-mark { width: 72px; height: 72px; font-size: 36px; border-radius: var(--radius-lg); margin: 0 auto 20px; background: linear-gradient(135deg, var(--primary) 0%, #334155 100%); box-shadow: 0 8px 24px rgba(15,23,42,.15); }
+  .auth-logo h1 { font-size: 28px; font-weight: 900; margin: 0 0 8px; letter-spacing: -0.8px; }
+  .auth-logo p { color: var(--text-2); margin: 0; font-size: 15px; font-weight: 500; }
+  .auth-card { background: var(--surface); border-radius: var(--radius-xl); padding: 32px 24px; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+  .auth-card h2 { font-size: 24px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .auth-card .subtitle { color: var(--text-2); margin: 0 0 24px; font-size: 14px; font-weight: 500; }
+  .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-2); font-weight: 500; }
+  .auth-footer a { color: var(--primary); font-weight: 700; cursor: pointer; }
+  .divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: var(--text-3); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .onboarding { min-height: 100vh; padding: 48px 24px 32px; display: flex; flex-direction: column; justify-content: space-between; }
+  .onboarding-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 32px 0; }
+  .onboarding-emoji { font-size: 88px; margin-bottom: 32px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,.1)); }
+  .onboarding h2 { font-size: 32px; font-weight: 900; margin: 0 0 16px; letter-spacing: -0.8px; line-height: 1.15; }
+  .onboarding p { color: var(--text-2); font-size: 17px; margin: 0 0 32px; max-width: 340px; line-height: 1.5; }
+  .onboarding-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 32px; }
+  .onboarding-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: var(--transition); }
+  .onboarding-dots span.active { background: var(--primary); width: 28px; border-radius: 4px; }
+  .dashboard-hero { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); color: #fff; border-radius: var(--radius-2xl); padding: 28px 24px; margin: 20px; box-shadow: 0 12px 40px rgba(15,23,42,.2); position: relative; overflow: hidden; }
+  .dashboard-hero::before { content: ''; position: absolute; top: -50%; right: -30%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(16,185,129,.2) 0%, transparent 70%); border-radius: 50%; animation: pulse 4s ease-in-out infinite; }
+  .dashboard-hero .label { font-size: 12px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; position: relative; }
+  .dashboard-hero .amount { font-size: 42px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; position: relative; line-height: 1; }
+  .dashboard-hero .sub { font-size: 14px; color: rgba(255,255,255,.75); font-weight: 500; position: relative; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 20px 24px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; border: 1px solid var(--border-light); box-shadow: var(--shadow-xs); transition: var(--transition); }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .stat-card .stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-card .stat-value { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+  .stat-card .stat-sub { font-size: 12px; color: var(--text-2); margin-top: 4px; font-weight: 500; }
+  .stat-card.accent { background: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent-softer) 100%); border-color: transparent; }
+  .stat-card.accent .stat-value { color: var(--accent-hover); }
+  .section { margin: 24px 20px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .section-header h3 { font-size: 17px; font-weight: 800; margin: 0; letter-spacing: -0.3px; }
+  .section-header a { font-size: 13px; color: var(--primary); font-weight: 700; cursor: pointer; }
+  .sub-card { background: var(--surface); border-radius: var(--radius-lg); padding: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; border: 1px solid var(--border-light); cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-xs); }
+  .sub-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .sub-logo { width: 48px; height: 48px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; flex-shrink: 0; box-shadow: var(--shadow-sm); }
+  .sub-info { flex: 1; min-width: 0; }
+  .sub-info .name { font-weight: 700; font-size: 15px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px; }
+  .sub-info .meta { font-size: 12px; color: var(--text-2); display: flex; gap: 8px; align-items: center; font-weight: 500; }
+  .sub-info .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
+  .sub-right { text-align: right; flex-shrink: 0; }
+  .sub-right .price { font-weight: 800; font-size: 16px; letter-spacing: -0.3px; }
+  .sub-right .days-left { font-size: 11px; font-weight: 700; margin-top: 6px; padding: 3px 10px; border-radius: 12px; display: inline-block; }
+  .days-left.urgent { background: var(--danger-soft); color: var(--danger); }
+  .days-left.soon { background: var(--warning-soft); color: var(--warning); }
+  .days-left.normal { background: var(--info-soft); color: var(--info); }
+  .empty-state { text-align: center; padding: 48px 24px; }
+  .empty-state .emoji { font-size: 56px; margin-bottom: 16px; filter: drop-shadow(0 4px 12px rgba(0,0,0,.08)); }
+  .empty-state h4 { font-size: 17px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.3px; }
+  .empty-state p { color: var(--text-2); font-size: 14px; margin: 0 0 24px; line-height: 1.5; }
+  .tabs { display: flex; gap: 6px; padding: 6px; background: var(--surface-2); border-radius: var(--radius); margin: 0 20px 20px; border: 1px solid var(--border-light); }
+  .tab { flex: 1; padding: 11px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; color: var(--text-2); text-align: center; transition: var(--transition); }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(255,255,255,.92); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-top: 1px solid var(--border-light); display: flex; padding: 10px 16px 14px; z-index: 40; }
+  @media (min-width: 768px) { .bottom-nav { border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); } }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; color: var(--text-3); font-size: 11px; font-weight: 600; transition: var(--transition); position: relative; }
+  .nav-item.active { color: var(--primary); }
+  .nav-item .nav-icon { font-size: 22px; line-height: 1; transition: var(--transition); }
+  .nav-item.active .nav-icon { transform: translateY(-2px); }
+  .nav-item .badge { position: absolute; top: 2px; right: 50%; transform: translateX(16px); background: var(--danger); color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; box-shadow: 0 2px 8px rgba(239,68,68,.3); }
+  .fab { position: fixed; bottom: 90px; right: 24px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, #334155 100%); color: #fff; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(15,23,42,.3); z-index: 30; transition: var(--transition); }
+  .fab:hover { transform: scale(1.08) rotate(90deg); }
+  @media (min-width: 768px) { .fab { right: calc(50% - 240px + 24px); } }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(10,14,26,.6); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: flex-end; justify-content: center; }
+  .modal-backdrop.active { display: flex; animation: fadeIn 0.2s; }
+  .modal { background: var(--surface); border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; padding: 28px 24px 36px; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  @media (min-width: 768px) { .modal-backdrop { align-items: center; } .modal { border-radius: var(--radius-2xl); max-height: 88vh; } }
+  .modal-handle { width: 44px; height: 5px; background: var(--border); border-radius: 3px; margin: 0 auto 20px; }
+  .modal h3 { font-size: 22px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .modal .modal-sub { color: var(--text-2); margin: 0 0 24px; font-size: 14px; font-weight: 500; }
+  .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--primary); color: #fff; padding: 14px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 200; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-width: 90%; text-align: center; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); }
+  .toast.error { background: linear-gradient(135deg, var(--danger) 0%, var(--danger-hover) 100%); }
+  .detail-hero { padding: 24px 20px 0; text-align: center; }
+  .detail-logo { width: 80px; height: 80px; border-radius: var(--radius-xl); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; color: #fff; box-shadow: var(--shadow-md); }
+  .detail-hero h2 { font-size: 24px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .detail-hero .price { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin: 12px 0 6px; line-height: 1; }
+  .detail-hero .cycle { color: var(--text-2); font-size: 15px; font-weight: 500; }
+  .info-list { margin: 24px 20px; }
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-light); }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label { color: var(--text-2); font-size: 14px; font-weight: 500; }
+  .info-row .value { font-weight: 700; font-size: 14px; }
+  .tip-card { background: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent-softer) 100%); border-radius: var(--radius-lg); padding: 20px; margin: 20px; border: 1.5px solid var(--accent-softer); }
+  .tip-card .tip-title { font-size: 13px; font-weight: 800; color: var(--accent-hover); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tip-card .tip-text { font-size: 15px; color: var(--text); line-height: 1.5; font-weight: 500; }
+  .notif-item { display: flex; gap: 14px; padding: 16px; background: var(--surface); border-radius: var(--radius-lg); margin-bottom: 10px; border: 1px solid var(--border-light); position: relative; transition: var(--transition); box-shadow: var(--shadow-xs); }
+  .notif-item.unread { border-color: var(--primary); background: linear-gradient(135deg, #fafbfc 0%, #f8f9fb 100%); }
+  .notif-item.unread::before { content: ''; position: absolute; top: 20px; right: 16px; width: 10px; height: 10px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 0 3px rgba(15,23,42,.1); }
+  .notif-icon { width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .notif-icon.renewal { background: var(--warning-soft); }
+  .notif-icon.cancel { background: var(--danger-soft); }
+  .notif-icon.refund { background: var(--info-soft); }
+  .notif-icon.save { background: var(--accent-soft); }
+  .notif-content { flex: 1; min-width: 0; }
+  .notif-content .title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .notif-content .msg { font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+  .notif-content .time { font-size: 11px; color: var(--text-3); font-weight: 600; }
+  .savings-hero { background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%); color: #fff; border-radius: var(--radius-2xl); padding: 32px 24px; margin: 20px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(16,185,129,.25); }
+  .savings-hero::before { content: ''; position: absolute; top: -40%; left: -30%; width: 280px; height: 280px; background: radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 70%); border-radius: 50%; animation: pulse 4s ease-in-out infinite; }
+  .savings-hero .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 8px; font-weight: 700; position: relative; }
+  .savings-hero .amount { font-size: 48px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; position: relative; line-height: 1; }
+  .savings-hero .sub { font-size: 14px; opacity: 0.95; font-weight: 500; position: relative; }
+  .chart { display: flex; align-items: flex-end; justify-content: space-around; height: 160px; padding: 20px 12px 12px; gap: 8px; }
+  .chart-bar { flex: 1; background: linear-gradient(180deg, var(--accent) 0%, #6ee7b7 100%); border-radius: 8px 8px 0 0; min-height: 12px; transition: var(--transition); box-shadow: 0 2px 8px rgba(16,185,129,.2); }
+  .chart-bar:hover { opacity: 0.85; transform: scaleY(1.05); }
+  .chart-labels { display: flex; justify-content: space-around; padding: 0 12px; font-size: 11px; color: var(--text-3); font-weight: 600; }
+  .history-item { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border-light); }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .h-logo { width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 18px; flex-shrink: 0; box-shadow: var(--shadow-sm); }
+  .history-item .h-info { flex: 1; }
+  .history-item .h-name { font-weight: 700; font-size: 15px; }
+  .history-item .h-date { font-size: 12px; color: var(--text-2); margin-top: 2px; font-weight: 500; }
+  .history-item .h-saved { font-weight: 800; color: var(--accent-hover); font-size: 15px; }
+  .cancel-step { background: var(--surface-2); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: flex; gap: 14px; border: 1px solid var(--border-light); }
+  .cancel-step .step-num { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary) 0%, #334155 100%); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+  .cancel-step .step-text { flex: 1; font-size: 14px; color: var(--text); line-height: 1.5; padding-top: 4px; font-weight: 500; }
+  .review-card { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; border: 1px solid var(--border-light); box-shadow: var(--shadow-xs); }
+  .review-card .r-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .review-card .r-actions { display: flex; gap: 10px; margin-top: 14px; }
+  .review-card .r-actions .btn { flex: 1; }
+  .profile-section { margin: 20px; }
+  .profile-section h4 { font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 800; letter-spacing: 0.8px; margin: 0 0 10px 4px; }
+  .profile-item { background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-light); margin-bottom: 12px; box-shadow: var(--shadow-xs); }
+  .profile-row { display: flex; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: var(--transition); }
+  .profile-row:last-child { border-bottom: none; }
+  .profile-row:hover { background: var(--surface-2); }
+  .profile-row .p-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 14px; }
+  .profile-row .p-label { flex: 1; font-size: 14px; font-weight: 600; }
+  .profile-row .p-value { font-size: 13px; color: var(--text-2); margin-right: 10px; font-weight: 500; }
+  .profile-row .p-arrow { color: var(--text-3); font-size: 16px; font-weight: 700; }
+  .profile-row.danger .p-label { color: var(--danger); }
+  .profile-row.danger .p-icon { background: var(--danger-soft); }
+  .admin-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px; }
+  .admin-stat { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; border: 1px solid var(--border-light); box-shadow: var(--shadow-xs); }
+  .admin-stat .label { font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; letter-spacing: 0.5px; }
+  .admin-stat .value { font-size: 26px; font-weight: 800; margin-top: 6px; letter-spacing: -0.5px; }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 8px 14px; border-radius: 20px; background: var(--surface-2); font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; transition: var(--transition); border: 1.5px solid transparent; }
+  .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .chip:hover:not(.active) { background: var(--surface-3); }
+  .search-wrap { position: relative; margin: 0 20px 16px; }
+  .search-wrap input { width: 100%; padding: 12px 16px 12px 44px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--surface); font-weight: 500; }
+  .search-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(15,23,42,.08); outline: none; }
+  .search-wrap .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 16px; }
+  .hidden { display: none !important; }
+  .mt-8 { margin-top: 8px; } .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; }
+  .mb-8 { margin-bottom: 8px; } .mb-12 { margin-bottom: 12px; } .mb-16 { margin-bottom: 16px; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="view active" id="view-auth">
+    <div class="auth-wrap">
+      <div class="auth-logo">
+        <div class="logo-mark">🛡️</div>
+        <h1>Money Guard</h1>
+        <p>Protect your money from unwanted renewals.</p>
+      </div>
+      <div class="auth-card" id="auth-login">
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to protect your money</p>
+        <form id="form-login" onsubmit="handleLogin(event)">
+          <div class="form-group"><label>Email</label><input type="email" class="input" id="login-email" placeholder="you@example.com" required autocomplete="email" /></div>
+          <div class="form-group"><label>Password</label><input type="password" class="input" id="login-password" placeholder="••••••••" required autocomplete="current-password" /></div>
+          <div style="text-align: right; margin-bottom: 20px;"><a onclick="showAuth('forgot')" style="font-size: 13px; color: var(--primary); font-weight: 700; cursor: pointer;">Forgot password?</a></div>
+          <button type="submit" class="btn btn-primary" id="login-btn">Sign In</button>
+          <div class="divider">OR</div>
+          <button type="button" class="btn btn-google" onclick="handleGoogleSignIn()">
+            <svg style="width: 20px; height: 20px; margin-right: 10px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+        </form>
+        <div class="auth-footer">Don't have an account? <a onclick="showAuth('signup')">Sign up</a></div>
+      </div>
+      <div class="auth-card hidden" id="auth-signup">
+        <h2>Create your account</h2>
+        <p class="subtitle">Start protecting your money today</p>
+        <form id="form-signup" onsubmit="handleSignup(event)">
+          <div class="form-group"><label>Full name</label><input type="text" class="input" id="signup-name" placeholder="John Doe" required /></div>
+          <div class="form-group"><label>Email</label><input type="email" class="input" id="signup-email" placeholder="you@example.com" required /></div>
+          <div class="form-group"><label>Password</label><input type="password" class="input" id="signup-password" placeholder="At least 6 characters" required minlength="6" /></div>
+          <button type="submit" class="btn btn-primary" id="signup-btn">Create Account</button>
+          <div class="divider">OR</div>
+          <button type="button" class="btn btn-google" onclick="handleGoogleSignIn()">
+            <svg style="width: 20px; height: 20px; margin-right: 10px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+        </form>
+        <div class="auth-footer">Already have an account? <a onclick="showAuth('login')">Sign in</a></div>
+      </div>
+      <div class="auth-card hidden" id="auth-forgot">
+        <h2>Reset password</h2>
+        <p class="subtitle">Enter your email and we'll send you a reset link</p>
+        <form id="form-forgot" onsubmit="handleForgotPassword(event)">
+          <div class="form-group"><label>Email</label><input type="email" class="input" id="forgot-email" placeholder="you@example.com" required /></div>
+          <button type="submit" class="btn btn-primary" id="forgot-btn">Send Reset Link</button>
+        </form>
+        <div class="auth-footer"><a onclick="showAuth('login')">← Back to sign in</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-onboarding">
+    <div class="onboarding">
+      <div>
+        <div class="onboarding-dots" id="onboarding-dots"><span class="active"></span><span></span><span></span><span></span></div>
+        <div class="onboarding-content" id="onboarding-content"></div>
+      </div>
+      <div style="padding: 0 8px;">
+        <button class="btn btn-primary" id="onboarding-next">Continue</button>
+        <button class="btn btn-ghost mt-12" id="onboarding-skip" style="display:none;">Skip for now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-home">
+    <div class="topbar"><h1><span class="logo-mark">🛡️</span> Money Guard</h1><button class="icon-btn" onclick="showView('notifications')">🔔</button></div>
+    <div class="dashboard-hero">
+      <div class="label">Your Subscription Spending</div>
+      <div class="amount" id="dash-monthly">₹0</div>
+      <div class="sub">per month · <span id="dash-yearly">₹0</span>/year</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value" id="dash-active">0</div><div class="stat-sub">subscriptions</div></div>
+      <div class="stat-card accent"><div class="stat-label">Potential savings</div><div class="stat-value" id="dash-savings">₹0</div><div class="stat-sub">per year</div></div>
+    </div>
+    <div class="section" id="review-section" style="display:none;">
+      <div class="section-header"><h3>💡 Money you could save</h3></div>
+      <div class="card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #fcd34d; border-width: 1.5px;">
+        <div style="font-size: 12px; color: #92400e; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">You could save</div>
+        <div style="font-size: 32px; font-weight: 900; color: #78350f; letter-spacing: -1px;" id="review-savings-amount">₹0/year</div>
+        <div style="font-size: 13px; color: #92400e; margin: 6px 0 16px; font-weight: 500;" id="review-savings-sub">Review subscriptions marked for review</div>
+        <button class="btn btn-sm" style="background: #78350f; color: #fff; width: 100%;" onclick="showReviewModal()">Review Subscriptions</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header"><h3>⏰ Upcoming Renewals</h3><a onclick="showView('subscriptions')">See all</a></div>
+      <div id="upcoming-list"></div>
+    </div>
+    <button class="fab" onclick="openAddSubscription()">+</button>
+  </div>
+
+  <div class="view" id="view-subscriptions">
+    <div class="topbar"><h1>Subscriptions</h1><button class="icon-btn" onclick="openAddSubscription()">+</button></div>
+    <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="sub-search" placeholder="Search subscriptions..." oninput="renderSubscriptions()" /></div>
+    <div class="tabs" id="sub-tabs">
+      <div class="tab active" data-filter="all" onclick="setSubTab('all')">All</div>
+      <div class="tab" data-filter="upcoming" onclick="setSubTab('upcoming')">Upcoming</div>
+      <div class="tab" data-filter="active" onclick="setSubTab('active')">Active</div>
+      <div class="tab" data-filter="cancelled" onclick="setSubTab('cancelled')">Cancelled</div>
+    </div>
+    <div style="padding: 0 20px;">
+      <div style="margin-bottom: 16px;">
+        <div class="chip-group" id="category-filter">
+          <div class="chip active" data-cat="all" onclick="setCategory('all')">All</div>
+          <div class="chip" data-cat="Entertainment" onclick="setCategory('Entertainment')">🎬 Entertainment</div>
+          <div class="chip" data-cat="Software" onclick="setCategory('Software')">💻 Software</div>
+          <div class="chip" data-cat="Shopping" onclick="setCategory('Shopping')">🛍️ Shopping</div>
+          <div class="chip" data-cat="Fitness" onclick="setCategory('Fitness')">💪 Fitness</div>
+          <div class="chip" data-cat="Education" onclick="setCategory('Education')">📚 Education</div>
+          <div class="chip" data-cat="Productivity" onclick="setCategory('Productivity')">⚡ Productivity</div>
+          <div class="chip" data-cat="Cloud Storage" onclick="setCategory('Cloud Storage')">☁️ Cloud</div>
+          <div class="chip" data-cat="Music" onclick="setCategory('Music')">🎵 Music</div>
+          <div class="chip" data-cat="Other" onclick="setCategory('Other')">📦 Other</div>
+        </div>
+      </div>
+      <div id="subscriptions-list"></div>
+    </div>
+    <button class="fab" onclick="openAddSubscription()">+</button>
+  </div>
+
+  <div class="view" id="view-detail">
+    <div class="topbar">
+      <button class="icon-btn" onclick="showView('subscriptions')">←</button>
+      <h1>Subscription Details</h1>
+      <button class="icon-btn" onclick="editCurrentSubscription()">✏️</button>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+
+  <div class="view" id="view-savings">
+    <div class="topbar"><h1>Your Savings</h1><button class="icon-btn" onclick="showView('home')">🏠</button></div>
+    <div class="savings-hero">
+      <div class="label">Total Money Protected</div>
+      <div class="amount" id="savings-total">₹0</div>
+      <div class="sub">Estimated total savings</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-value" id="savings-cancelled">0</div><div class="stat-sub">subscriptions</div></div>
+      <div class="stat-card accent"><div class="stat-label">Yearly savings</div><div class="stat-value" id="savings-yearly">₹0</div><div class="stat-sub">from cancellations</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly savings</div><div class="stat-value" id="savings-monthly">₹0</div><div class="stat-sub">recurring</div></div>
+      <div class="stat-card"><div class="stat-label">Refunds requested</div><div class="stat-value" id="savings-refunds">₹0</div><div class="stat-sub">pending</div></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><h3>📊 Savings over time</h3></div>
+      <div class="card"><div class="chart" id="savings-chart"></div><div class="chart-labels" id="savings-chart-labels"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><h3>🎉 Cancellation History</h3></div>
+      <div class="card" id="cancellation-history"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-notifications">
+    <div class="topbar"><h1>Notifications</h1><button class="icon-btn" onclick="markAllRead()">✓</button></div>
+    <div style="padding: 20px;" id="notifications-list"></div>
+  </div>
+
+  <div class="view" id="view-profile">
+    <div class="topbar"><h1>Profile</h1><button class="icon-btn" onclick="showAdminPanel()">⚙️</button></div>
+    <div class="profile-section">
+      <div class="card" style="text-align: center; padding: 28px;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, #334155 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; margin: 0 auto 16px; box-shadow: var(--shadow-md);" id="profile-avatar">J</div>
+        <h3 style="margin: 0 0 6px; font-size: 20px; font-weight: 800;" id="profile-name">John Doe</h3>
+        <p style="margin: 0; color: var(--text-2); font-size: 14px; font-weight: 500;" id="profile-email">john@example.com</p>
+      </div>
+    </div>
+    <div class="profile-section">
+      <h4>Preferences</h4>
+      <div class="profile-item">
+        <div class="profile-row" onclick="openReminderSettings()"><div class="p-icon">🔔</div><div class="p-label">Reminder settings</div><div class="p-value" id="reminder-summary">3 reminders</div><div class="p-arrow">›</div></div>
+        <div class="profile-row" onclick="openCurrencySettings()"><div class="p-icon">💱</div><div class="p-label">Currency</div><div class="p-value" id="currency-display">₹ INR</div><div class="p-arrow">›</div></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <h4>Support</h4>
+      <div class="profile-item">
+        <div class="profile-row" onclick="showToast('Privacy policy coming soon')"><div class="p-icon">🔒</div><div class="p-label">Privacy</div><div class="p-arrow">›</div></div>
+        <div class="profile-row" onclick="showToast('Terms of service coming soon')"><div class="p-icon">📄</div><div class="p-label">Terms</div><div class="p-arrow">›</div></div>
+        <div class="profile-row" onclick="showToast('Help center coming soon')"><div class="p-icon">💬</div><div class="p-label">Help & Support</div><div class="p-arrow">›</div></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <h4>Account</h4>
+      <div class="profile-item">
+        <div class="profile-row danger" onclick="deleteAccount()"><div class="p-icon">🗑️</div><div class="p-label">Delete Account</div><div class="p-arrow">›</div></div>
+        <div class="profile-row danger" onclick="logout()"><div class="p-icon">🚪</div><div class="p-label">Log Out</div><div class="p-arrow">›</div></div>
+      </div>
+    </div>
+    <div style="text-align: center; padding: 24px; color: var(--text-3); font-size: 12px; font-weight: 600;">Money Guard v1.0 · Made with 🛡️</div>
+  </div>
+
+  <div class="view" id="view-admin">
+    <div class="topbar"><button class="icon-btn" onclick="showView('profile')">←</button><h1>Admin Panel</h1><div style="width: 40px;"></div></div>
+    <div class="admin-stats">
+      <div class="admin-stat"><div class="label">Total Users</div><div class="value" id="admin-users">0</div></div>
+      <div class="admin-stat"><div class="label">Subscriptions</div><div class="value" id="admin-subs">0</div></div>
+      <div class="admin-stat"><div class="label">Cancellations</div><div class="value" id="admin-cancels">0</div></div>
+      <div class="admin-stat"><div class="label">Refund Requests</div><div class="value" id="admin-refunds">0</div></div>
+    </div>
+    <div class="section"><div class="section-header"><h3>📋 Service Templates</h3><button class="btn btn-sm btn-outline" onclick="openAddTemplate()">+ Add</button></div><div id="admin-templates"></div></div>
+    <div class="section"><div class="section-header"><h3>👥 Users</h3></div><div class="card" id="admin-users-list"></div></div>
+    <div class="section"><div class="section-header"><h3>💸 Recent Cancellations</h3></div><div class="card" id="admin-cancellations-list"></div></div>
+  </div>
+
+  <div class="bottom-nav" id="bottom-nav" style="display:none;">
+    <div class="nav-item active" data-view="home" onclick="showView('home')"><div class="nav-icon">🏠</div><div>Home</div></div>
+    <div class="nav-item" data-view="subscriptions" onclick="showView('subscriptions')"><div class="nav-icon">📋</div><div>Subscriptions</div></div>
+    <div class="nav-item" data-view="savings" onclick="showView('savings')"><div class="nav-icon">💰</div><div>Savings</div></div>
+    <div class="nav-item" data-view="notifications" onclick="showView('notifications')"><div class="nav-icon">🔔</div><div>Alerts</div><div class="badge hidden" id="notif-badge">0</div></div>
+    <div class="nav-item" data-view="profile" onclick="showView('profile')"><div class="nav-icon">👤</div><div>Profile</div></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DB = {
+  load(k, f) { try { const v = localStorage.getItem('mg_' + k); return v ? JSON.parse(v) : f; } catch(e) { return f; } },
+  save(k, v) { localStorage.setItem('mg_' + k, JSON.stringify(v)); }
+};
+
+let state = {
+  users: DB.load('users', []), currentUser: DB.load('currentUser', null),
+  subscriptions: DB.load('subscriptions', []), reminders: DB.load('reminders', []),
+  cancellations: DB.load('cancellations', []), refunds: DB.load('refunds', []),
+  notifications: DB.load('notifications', []), templates: DB.load('templates', getDefaultTemplates()),
+  settings: DB.load('settings', { reminderDays: [7, 3, 1], currency: 'INR', currencySymbol: '₹' }),
+  currentView: 'auth', currentSubFilter: 'all', currentCategory: 'all', currentSubId: null, onboardingStep: 0
+};
+
+function getDefaultTemplates() {
+  return [
+    { name: 'Netflix', emoji: 'N', color: '#E50914', category: 'Entertainment', cancellationUrl: 'https://www.netflix.com/cancel', instructions: 'Go to Netflix.com → Account → Membership & Billing → Cancel Membership.' },
+    { name: 'Spotify', emoji: '♪', color: '#1DB954', category: 'Music', cancellationUrl: 'https://www.spotify.com/account/subscription/', instructions: 'Log in to spotify.com → Account → Subscription → Cancel.' },
+    { name: 'YouTube Premium', emoji: '▶', color: '#FF0000', category: 'Entertainment', cancellationUrl: 'https://www.youtube.com/paid_memberships', instructions: 'YouTube → Profile → Purchases & memberships → Manage → Cancel.' },
+    { name: 'Amazon Prime', emoji: 'A', color: '#FF9900', category: 'Shopping', cancellationUrl: 'https://www.amazon.com/prime', instructions: 'Amazon → Accounts & Lists → Your Prime Membership → Manage → End.' },
+    { name: 'Disney+ Hotstar', emoji: 'D', color: '#113CCF', category: 'Entertainment', cancellationUrl: 'https://www.hotstar.com/in/settings', instructions: 'Hotstar → Profile → Settings → Subscription → Cancel.' },
+    { name: 'Canva Pro', emoji: 'C', color: '#00C4CC', category: 'Productivity', cancellationUrl: 'https://www.canva.com/account/billing', instructions: 'Canva → Account Settings → Billing → Cancel Subscription.' },
+    { name: 'ChatGPT Plus', emoji: '✦', color: '#10a37f', category: 'Software', cancellationUrl: 'https://chat.openai.com/account/billing', instructions: 'ChatGPT → Settings → Subscription → Cancel.' },
+    { name: 'Adobe CC', emoji: 'A', color: '#FF0000', category: 'Software', cancellationUrl: 'https://account.adobe.com/plans', instructions: 'Adobe → Plans → Manage Plan → Cancel.' },
+    { name: 'Dropbox', emoji: '▤', color: '#0061FF', category: 'Cloud Storage', cancellationUrl: 'https://www.dropbox.com/account', instructions: 'Dropbox → Account → Plan → Cancel Plan.' },
+    { name: 'Google One', emoji: 'G', color: '#4285F4', category: 'Cloud Storage', cancellationUrl: 'https://one.google.com/about', instructions: 'Google One → Settings → Cancel Membership.' },
+    { name: 'Apple Music', emoji: '♫', color: '#FA243C', category: 'Music', cancellationUrl: 'https://support.apple.com/billing', instructions: 'Settings → Your Name → Subscriptions → Cancel.' },
+    { name: 'Cult.fit', emoji: '♥', color: '#FF5A5F', category: 'Fitness', cancellationUrl: 'https://www.cult.fit/plus', instructions: 'Cult.fit → Profile → Membership → Cancel.' },
+    { name: 'Duolingo Plus', emoji: '🦉', color: '#58CC02', category: 'Education', cancellationUrl: 'https://www.duolingo.com/settings', instructions: 'Duolingo → Settings → Subscription → Cancel.' },
+    { name: 'Notion', emoji: '𝓝', color: '#000000', category: 'Productivity', cancellationUrl: 'https://www.notion.so/settings/billing', instructions: 'Notion → Settings → Billing → Cancel.' },
+    { name: 'Microsoft 365', emoji: 'M', color: '#0078D4', category: 'Software', cancellationUrl: 'https://account.microsoft.com/services/', instructions: 'Microsoft Account → Services & Subscriptions → Manage → Cancel.' }
+  ];
+}
+
+const CURRENCIES = { INR: { symbol: '₹', name: 'Indian Rupee' }, USD: { symbol: '$', name: 'US Dollar' }, EUR: { symbol: '€', name: 'Euro' }, GBP: { symbol: '£', name: 'British Pound' }, JPY: { symbol: '¥', name: 'Japanese Yen' } };
+
+function formatMoney(amount, currency) {
+  const c = currency || state.settings.currency; const sym = CURRENCIES[c]?.symbol || '₹'; const n = Math.round(amount);
+  if (n >= 10000000) return sym + (n / 10000000).toFixed(2) + ' Cr';
+  if (n >= 100000) return sym + (n / 100000).toFixed(2) + ' L';
+  return sym + n.toLocaleString('en-IN');
+}
+function calcMonthly(price, cycle) { switch (cycle) { case 'Weekly': return price * 4.33; case 'Monthly': return price; case 'Quarterly': return price / 3; case 'Yearly': return price / 12; default: return price; } }
+function calcYearly(price, cycle) { return calcMonthly(price, cycle) * 12; }
+function daysUntil(dateStr) { const today = new Date(); today.setHours(0,0,0,0); const target = new Date(dateStr); target.setHours(0,0,0,0); return Math.round((target - today) / 86400000); }
+function formatDate(dateStr) { return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+function escapeHtml(s) { return s ? String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) : ''; }
+function saveAll() { ['users','currentUser','subscriptions','reminders','cancellations','refunds','notifications','templates','settings'].forEach(k => DB.save(k, state[k])); }
+function showToast(msg, type = '') { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + type; setTimeout(() => t.classList.remove('show'), 2800); }
+
+function showAuth(mode) { ['login','signup','forgot'].forEach(m => { const el = document.getElementById('auth-' + m); if (el) el.classList.toggle('hidden', m !== mode); }); }
+
+function handleLogin(e) {
+  e.preventDefault(); const btn = document.getElementById('login-btn');
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { showToast('Please fill in all fields', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  setTimeout(() => {
+    const user = state.users.find(u => u.email === email);
+    if (!user) { showToast('No account found. Please sign up.', 'error'); btn.disabled = false; btn.textContent = 'Sign In'; return; }
+    if (user.password !== password) { showToast('Incorrect password', 'error'); btn.disabled = false; btn.textContent = 'Sign In'; return; }
+    state.currentUser = user; saveAll();
+    showToast('Welcome back, ' + user.name.split(' ')[0] + '!', 'success');
+    if (state.subscriptions.filter(s => s.userId === user.id).length === 0) startOnboarding(); else enterApp();
+  }, 600);
+}
+
+function handleSignup(e) {
+  e.preventDefault(); const btn = document.getElementById('signup-btn');
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim().toLowerCase();
+  const password = document.getElementById('signup-password').value;
+  if (!name || !email || !password) { showToast('Please fill in all fields', 'error'); return; }
+  if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  setTimeout(() => {
+    if (state.users.find(u => u.email === email)) { showToast('Email already registered', 'error'); btn.disabled = false; btn.textContent = 'Create Account'; return; }
+    const user = { id: uid(), name, email, password, createdAt: new Date().toISOString() };
+    state.users.push(user); state.currentUser = user; saveAll();
+    showToast('Account created!', 'success'); startOnboarding();
+  }, 600);
+}
+
+function handleForgotPassword(e) {
+  e.preventDefault(); const btn = document.getElementById('forgot-btn');
+  const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  if (!email) { showToast('Please enter your email', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  setTimeout(() => { showToast('Reset link sent to ' + email, 'success'); btn.disabled = false; btn.textContent = 'Send Reset Link'; setTimeout(() => showAuth('login'), 1500); }, 600);
+}
+
+function handleGoogleSignIn() {
+  const btn = event.target.closest('button'); btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:20px;height:20px;border:2px solid #ccc;border-top-color:#333;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:10px;"></span>Connecting...';
+  setTimeout(() => {
+    const googleEmail = 'user' + Math.floor(Math.random() * 1000) + '@gmail.com';
+    let user = state.users.find(u => u.email === googleEmail);
+    if (!user) { user = { id: uid(), name: 'Google User', email: googleEmail, password: '', authProvider: 'google', createdAt: new Date().toISOString() }; state.users.push(user); showToast('Google account connected!', 'success'); }
+    else showToast('Welcome back!', 'success');
+    state.currentUser = user; saveAll();
+    if (state.subscriptions.filter(s => s.userId === user.id).length === 0) startOnboarding(); else enterApp();
+  }, 1000);
+}
+
+function logout() { if (!confirm('Are you sure you want to log out?')) return; state.currentUser = null; saveAll(); document.querySelectorAll('form').forEach(f => f.reset()); showView('auth'); document.getElementById('bottom-nav').style.display = 'none'; showToast('Logged out'); }
+function deleteAccount() { if (!confirm('Delete your account? This cannot be undone.')) return; if (!confirm('Are you absolutely sure?')) return; const userId = state.currentUser.id; state.users = state.users.filter(u => u.id !== userId); state.subscriptions = state.subscriptions.filter(s => s.userId !== userId); state.reminders = state.reminders.filter(r => r.userId !== userId); state.cancellations = state.cancellations.filter(c => c.userId !== userId); state.refunds = state.refunds.filter(r => r.userId !== userId); state.notifications = state.notifications.filter(n => n.userId !== userId); state.currentUser = null; saveAll(); document.querySelectorAll('form').forEach(f => f.reset()); showView('auth'); document.getElementById('bottom-nav').style.display = 'none'; showToast('Account deleted'); }
+
+const onboardingScreens = [
+  { emoji: '🛡️', title: 'Welcome to Money Guard', text: 'Take control of your subscriptions and stop wasting money.' },
+  { emoji: '💸', title: 'How much are your subscriptions costing you?', text: "Let's add your first subscription to see your total spend.", hasAdd: true },
+  { emoji: '⏰', title: 'Never miss a renewal.', text: 'Money Guard reminds you before recurring charges happen.' },
+  { emoji: '🚀', title: 'Ready to protect your money?', text: "Let's get started on your journey to smarter spending." }
+];
+
+function startOnboarding() { state.onboardingStep = 0; showView('onboarding'); renderOnboarding(); }
+function renderOnboarding() {
+  const step = state.onboardingStep; const screen = onboardingScreens[step];
+  document.getElementById('onboarding-content').innerHTML = `<div class="onboarding-emoji">${screen.emoji}</div><h2>${screen.title}</h2><p>${screen.text}</p>${screen.hasAdd ? '<button class="btn btn-outline" onclick="openAddSubscription(true)" style="max-width: 300px;">+ Add my first subscription</button>' : ''}`;
+  document.querySelectorAll('#onboarding-dots span').forEach((d, i) => d.classList.toggle('active', i === step));
+  document.getElementById('onboarding-next').textContent = step === onboardingScreens.length - 1 ? 'Get Started' : 'Continue';
+  document.getElementById('onboarding-skip').style.display = step > 0 ? 'block' : 'none';
+}
+document.getElementById('onboarding-next').addEventListener('click', () => { if (state.onboardingStep < onboardingScreens.length - 1) { state.onboardingStep++; renderOnboarding(); } else enterApp(); });
+document.getElementById('onboarding-skip').addEventListener('click', () => { state.onboardingStep = onboardingScreens.length - 1; renderOnboarding(); });
+
+function enterApp() { processReminders(); showView('home'); document.getElementById('bottom-nav').style.display = 'flex'; }
+function showView(name) {
+  if (!state.currentUser && name !== 'auth') { showView('auth'); return; }
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const view = document.getElementById('view-' + name); if (view) view.classList.add('active');
+  state.currentView = name;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === name));
+  if (name === 'home') renderDashboard(); if (name === 'subscriptions') renderSubscriptions();
+  if (name === 'savings') renderSavings(); if (name === 'notifications') renderNotifications();
+  if (name === 'profile') renderProfile(); if (name === 'admin') renderAdmin();
+  if (name === 'auth' || name === 'onboarding') document.getElementById('bottom-nav').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function renderDashboard() {
+  const userId = state.currentUser.id;
+  const active = state.subscriptions.filter(s => s.userId === userId && s.status === 'active');
+  const monthly = active.reduce((sum, s) => sum + calcMonthly(s.price, s.billingCycle), 0);
+  const yearly = monthly * 12;
+  const notUsing = active.filter(s => s.notUsing).reduce((sum, s) => sum + calcYearly(s.price, s.billingCycle), 0);
+  const cancelledSavings = state.cancellations.filter(c => c.userId === userId).reduce((sum, c) => sum + (c.estimatedYearlySavings || 0), 0);
+  const potentialSavings = notUsing + cancelledSavings;
+  document.getElementById('dash-monthly').textContent = formatMoney(monthly);
+  document.getElementById('dash-yearly').textContent = formatMoney(yearly);
+  document.getElementById('dash-active').textContent = active.length;
+  document.getElementById('dash-savings').textContent = formatMoney(potentialSavings);
+  const reviewSection = document.getElementById('review-section');
+  if (notUsing > 0) { reviewSection.style.display = 'block'; document.getElementById('review-savings-amount').textContent = formatMoney(notUsing) + '/year'; const count = active.filter(s => s.notUsing).length; document.getElementById('review-savings-sub').textContent = `${count} subscription${count > 1 ? 's' : ''} marked for review`; }
+  else reviewSection.style.display = 'none';
+  const upcoming = active.filter(s => daysUntil(s.renewalDate) >= 0).sort((a, b) => daysUntil(a.renewalDate) - daysUntil(b.renewalDate)).slice(0, 5);
+  const list = document.getElementById('upcoming-list');
+  if (upcoming.length === 0) list.innerHTML = `<div class="empty-state"><div class="emoji">📭</div><h4>No upcoming renewals</h4><p>Add a subscription to start tracking</p><button class="btn btn-primary btn-sm" onclick="openAddSubscription()" style="width: auto; padding: 12px 24px;">+ Add Subscription</button></div>`;
+  else list.innerHTML = upcoming.map(s => renderSubCard(s)).join('');
+}
+
+function renderSubCard(s) {
+  const template = state.templates.find(t => t.name === s.serviceName);
+  const emoji = template?.emoji || s.serviceName.charAt(0).toUpperCase();
+  const color = template?.color || '#6366f1';
+  const days = daysUntil(s.renewalDate);
+  let daysClass = 'normal', daysText = '';
+  if (days < 0) { daysClass = 'urgent'; daysText = 'Overdue'; }
+  else if (days === 0) { daysClass = 'urgent'; daysText = 'Today'; }
+  else if (days === 1) { daysClass = 'urgent'; daysText = 'Tomorrow'; }
+  else if (days <= 3) { daysClass = 'soon'; daysText = days + ' days left'; }
+  else if (days <= 7) { daysClass = 'normal'; daysText = days + ' days left'; }
+  else daysText = days + ' days left';
+  return `<div class="sub-card" onclick="openSubscription('${s.id}')"><div class="sub-logo" style="background: ${color};">${escapeHtml(emoji)}</div><div class="sub-info"><div class="name">${escapeHtml(s.serviceName)}</div><div class="meta"><span>${escapeHtml(s.billingCycle)}</span><span class="dot"></span><span>Renews ${formatDate(s.renewalDate).replace(/, \d{4}$/, '')}</span></div></div><div class="sub-right"><div class="price">${formatMoney(s.price, s.currency)}</div><div class="days-left ${daysClass}">${daysText}</div></div></div>`;
+}
+
+function setSubTab(filter) { state.currentSubFilter = filter; document.querySelectorAll('#sub-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.filter === filter)); renderSubscriptions(); }
+function setCategory(cat) { state.currentCategory = cat; document.querySelectorAll('#category-filter .chip').forEach(c => c.classList.toggle('active', c.dataset.cat === cat)); renderSubscriptions(); }
+
+function renderSubscriptions() {
+  const userId = state.currentUser.id; const search = document.getElementById('sub-search').value.toLowerCase();
+  let list = state.subscriptions.filter(s => s.userId === userId);
+  if (state.currentSubFilter === 'active') list = list.filter(s => s.status === 'active');
+  else if (state.currentSubFilter === 'cancelled') list = list.filter(s => s.status === 'cancelled');
+  else if (state.currentSubFilter === 'upcoming') list = list.filter(s => s.status === 'active' && daysUntil(s.renewalDate) >= 0 && daysUntil(s.renewalDate) <= 14);
+  if (state.currentCategory !== 'all') list = list.filter(s => s.category === state.currentCategory);
+  if (search) list = list.filter(s => s.serviceName.toLowerCase().includes(search) || (s.category || '').toLowerCase().includes(search));
+  list.sort((a, b) => { if (a.status !== b.status) return a.status === 'active' ? -1 : 1; return new Date(a.renewalDate) - new Date(b.renewalDate); });
+  const container = document.getElementById('subscriptions-list');
+  if (list.length === 0) container.innerHTML = `<div class="empty-state"><div class="emoji">📋</div><h4>No subscriptions found</h4><p>${search ? 'Try a different search' : 'Add your first subscription'}</p>${!search ? '<button class="btn btn-primary btn-sm" onclick="openAddSubscription()" style="width: auto; padding: 12px 24px;">+ Add Subscription</button>' : ''}</div>`;
+  else container.innerHTML = list.map(s => renderSubCard(s)).join('');
+}
+
+function openAddSubscription(fromOnboarding = false) {
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `<h3>Add Subscription</h3><p class="modal-sub">Track a new subscription</p><form id="form-add-sub"><div class="form-group"><label>Subscription name</label><input type="text" class="input" id="sub-name" placeholder="e.g. Netflix" required list="service-suggestions" /><datalist id="service-suggestions">${state.templates.map(t => `<option value="${escapeHtml(t.name)}">`).join('')}</datalist></div><div class="input-row"><div class="form-group"><label>Price</label><input type="number" class="input" id="sub-price" placeholder="0" min="0" step="0.01" required /></div><div class="form-group" style="max-width: 110px;"><label>Currency</label><select class="select" id="sub-currency">${Object.keys(CURRENCIES).map(c => `<option value="${c}" ${c === state.settings.currency ? 'selected' : ''}>${c}</option>`).join('')}</select></div></div><div class="form-group"><label>Billing cycle</label><select class="select" id="sub-cycle" required><option>Monthly</option><option>Yearly</option><option>Quarterly</option><option>Weekly</option><option>Custom</option></select></div><div class="form-group"><label>Next renewal date</label><input type="date" class="input" id="sub-renewal" required /></div><div class="form-group"><label>Category</label><select class="select" id="sub-category" required><option>Entertainment</option><option>Software</option><option>Shopping</option><option>Fitness</option><option>Education</option><option>Productivity</option><option>Cloud Storage</option><option>Music</option><option>Other</option></select></div><div class="form-group"><label>Payment method</label><select class="select" id="sub-payment" required><option>Credit Card</option><option>Debit Card</option><option>UPI</option><option>Bank</option><option>PayPal</option><option>Other</option></select></div><div class="form-group"><label>Notes (optional)</label><textarea class="textarea" id="sub-notes" placeholder="Any additional details..."></textarea></div><button type="submit" class="btn btn-primary">Add Subscription</button><button type="button" class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button></form>`;
+  openModal();
+  const defaultDate = new Date(); defaultDate.setMonth(defaultDate.getMonth() + 1);
+  document.getElementById('sub-renewal').value = defaultDate.toISOString().split('T')[0];
+  document.getElementById('sub-name').addEventListener('input', e => { const t = state.templates.find(t => t.name.toLowerCase() === e.target.value.toLowerCase()); if (t) document.getElementById('sub-category').value = t.category; });
+  document.getElementById('form-add-sub').addEventListener('submit', e => {
+    e.preventDefault();
+    const sub = { id: uid(), userId: state.currentUser.id, serviceName: document.getElementById('sub-name').value.trim(), price: parseFloat(document.getElementById('sub-price').value), currency: document.getElementById('sub-currency').value, billingCycle: document.getElementById('sub-cycle').value, renewalDate: document.getElementById('sub-renewal').value, category: document.getElementById('sub-category').value, paymentMethod: document.getElementById('sub-payment').value, notes: document.getElementById('sub-notes').value.trim(), status: 'active', notUsing: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    state.subscriptions.push(sub); createRemindersForSubscription(sub); saveAll(); closeModal();
+    showToast('✓ Subscription added successfully', 'success');
+    if (fromOnboarding) { state.onboardingStep++; renderOnboarding(); } else { renderDashboard(); renderSubscriptions(); }
+  });
+}
+
+function editCurrentSubscription() {
+  const sub = state.subscriptions.find(s => s.id === state.currentSubId); if (!sub) return;
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `<h3>Edit Subscription</h3><p class="modal-sub">Update details for ${escapeHtml(sub.serviceName)}</p><form id="form-edit-sub"><div class="form-group"><label>Subscription name</label><input type="text" class="input" id="sub-name" value="${escapeHtml(sub.serviceName)}" required /></div><div class="input-row"><div class="form-group"><label>Price</label><input type="number" class="input" id="sub-price" value="${sub.price}" min="0" step="0.01" required /></div><div class="form-group" style="max-width: 110px;"><label>Currency</label><select class="select" id="sub-currency">${Object.keys(CURRENCIES).map(c => `<option value="${c}" ${c === sub.currency ? 'selected' : ''}>${c}</option>`).join('')}</select></div></div><div class="form-group"><label>Billing cycle</label><select class="select" id="sub-cycle" required>${['Monthly','Yearly','Quarterly','Weekly','Custom'].map(c => `<option ${c === sub.billingCycle ? 'selected' : ''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Next renewal date</label><input type="date" class="input" id="sub-renewal" value="${sub.renewalDate}" required /></div><div class="form-group"><label>Category</label><select class="select" id="sub-category" required>${['Entertainment','Software','Shopping','Fitness','Education','Productivity','Cloud Storage','Music','Other'].map(c => `<option ${c === sub.category ? 'selected' : ''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Payment method</label><select class="select" id="sub-payment" required>${['Credit Card','Debit Card','UPI','Bank','PayPal','Other'].map(c => `<option ${c === sub.paymentMethod ? 'selected' : ''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Notes</label><textarea class="textarea" id="sub-notes">${escapeHtml(sub.notes || '')}</textarea></div><button type="submit" class="btn btn-primary">Save Changes</button><button type="button" class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button></form>`;
+  openModal();
+  document.getElementById('form-edit-sub').addEventListener('submit', e => {
+    e.preventDefault();
+    sub.serviceName = document.getElementById('sub-name').value.trim(); sub.price = parseFloat(document.getElementById('sub-price').value); sub.currency = document.getElementById('sub-currency').value; sub.billingCycle = document.getElementById('sub-cycle').value; sub.renewalDate = document.getElementById('sub-renewal').value; sub.category = document.getElementById('sub-category').value; sub.paymentMethod = document.getElementById('sub-payment').value; sub.notes = document.getElementById('sub-notes').value.trim(); sub.updatedAt = new Date().toISOString();
+    state.reminders = state.reminders.filter(r => r.subscriptionId !== sub.id); createRemindersForSubscription(sub); saveAll(); closeModal();
+    showToast('✓ Subscription updated', 'success'); renderDetail(sub.id); renderSubscriptions(); renderDashboard();
+  });
+}
+
+function openSubscription(id) { state.currentSubId = id; renderDetail(id); showView('detail'); }
+
+function renderDetail(id) {
+  const s = state.subscriptions.find(x => x.id === id); if (!s) return;
+  const template = state.templates.find(t => t.name === s.serviceName);
+  const emoji = template?.emoji || s.serviceName.charAt(0).toUpperCase();
+  const color = template?.color || '#6366f1';
+  const yearly = calcYearly(s.price, s.billingCycle); const monthly = calcMonthly(s.price, s.billingCycle); const days = daysUntil(s.renewalDate);
+  let statusBadge = '';
+  if (s.status === 'cancelled') statusBadge = '<span style="display:inline-block;background:var(--danger-soft);color:var(--danger);padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;">Cancelled</span>';
+  else if (s.notUsing) statusBadge = '<span style="display:inline-block;background:var(--warning-soft);color:var(--warning);padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;">Not using</span>';
+  else statusBadge = '<span style="display:inline-block;background:var(--accent-soft);color:var(--accent-hover);padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;">Active</span>';
+  const content = document.getElementById('detail-content');
+  content.innerHTML = `<div class="detail-hero"><div class="detail-logo" style="background: ${color};">${escapeHtml(emoji)}</div><h2>${escapeHtml(s.serviceName)} ${statusBadge}</h2><div class="price">${formatMoney(s.price, s.currency)}<span style="font-size: 18px; color: var(--text-2); font-weight: 600;">/${s.billingCycle.toLowerCase()}</span></div><div class="cycle">Annual cost: ${formatMoney(yearly, s.currency)}</div></div><div class="info-list card"><div class="info-row"><div class="label">Next renewal</div><div class="value">${formatDate(s.renewalDate)} ${days >= 0 ? `<span style="color: ${days <= 3 ? 'var(--danger)' : days <= 7 ? 'var(--warning)' : 'var(--info)'}; font-size: 12px; margin-left: 6px; font-weight: 700;">(${days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : days + ' days'})</span>` : '<span style="color: var(--danger); font-size: 12px; margin-left: 6px; font-weight: 700;">(Overdue)</span>'}</div></div><div class="info-row"><div class="label">Billing cycle</div><div class="value">${s.billingCycle}</div></div><div class="info-row"><div class="label">Monthly equivalent</div><div class="value">${formatMoney(monthly, s.currency)}</div></div><div class="info-row"><div class="label">Payment method</div><div class="value">${escapeHtml(s.paymentMethod)}</div></div><div class="info-row"><div class="label">Category</div><div class="value">${escapeHtml(s.category)}</div></div>${s.notes ? `<div class="info-row"><div class="label">Notes</div><div class="value" style="max-width: 60%; text-align: right;">${escapeHtml(s.notes)}</div></div>` : ''}<div class="info-row"><div class="label">Added</div><div class="value">${formatDate(s.createdAt)}</div></div></div>${s.status === 'active' ? `<div class="tip-card"><div class="tip-title">💡 Money Guard Tip</div><div class="tip-text">You could save <strong>${formatMoney(yearly, s.currency)}/year</strong> by cancelling this subscription.</div></div><div style="padding: 0 20px 20px;"><button class="btn btn-outline mb-12" onclick="toggleNotUsing('${s.id}')">${s.notUsing ? '✓ Mark as Using' : '🚫 Mark as Not Using'}</button><button class="btn btn-outline mb-12" onclick="openRefundAssistant('${s.id}')">💸 Request Refund</button><button class="btn btn-danger" onclick="openCancelAssistant('${s.id}')">Cancel Subscription</button></div>` : `<div style="padding: 0 20px 20px;"><button class="btn btn-outline mb-12" onclick="reactivateSubscription('${s.id}')">✓ Reactivate Subscription</button><button class="btn btn-danger" onclick="deleteSubscription('${s.id}')">🗑️ Delete Subscription</button></div>`}`;
+}
+
+function toggleNotUsing(id) { const s = state.subscriptions.find(x => x.id === id); if (!s) return; s.notUsing = !s.notUsing; s.updatedAt = new Date().toISOString(); saveAll(); showToast(s.notUsing ? 'Marked as not using' : 'Marked as using', 'success'); renderDetail(id); renderDashboard(); }
+function deleteSubscription(id) { if (!confirm('Delete this subscription?')) return; state.subscriptions = state.subscriptions.filter(s => s.id !== id); state.reminders = state.reminders.filter(r => r.subscriptionId !== id); saveAll(); showToast('Subscription deleted'); showView('subscriptions'); }
+function reactivateSubscription(id) { const s = state.subscriptions.find(x => x.id === id); if (!s) return; s.status = 'active'; s.notUsing = false; s.updatedAt = new Date().toISOString(); saveAll(); showToast('Subscription reactivated', 'success'); renderDetail(id); }
+
+function openCancelAssistant(id) {
+  const s = state.subscriptions.find(x => x.id === id); if (!s) return;
+  const template = state.templates.find(t => t.name === s.serviceName);
+  const yearly = calcYearly(s.price, s.billingCycle);
+  const url = template?.cancellationUrl || '#';
+  const instructions = template?.instructions || `Visit the official ${s.serviceName} website or app.`;
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `<h3>Cancel ${escapeHtml(s.serviceName)}</h3><p class="modal-sub">We'll help you cancel before your next charge</p><div class="card mb-16" style="background: var(--surface-2); border: none;"><div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span style="color: var(--text-2); font-size: 13px; font-weight: 600;">Price</span><strong>${formatMoney(s.price, s.currency)}/${s.billingCycle.toLowerCase()}</strong></div><div style="display: flex; justify-content: space-between;"><span style="color: var(--text-2); font-size: 13px; font-weight: 600;">Next renewal</span><strong>${formatDate(s.renewalDate)}</strong></div></div><h4 style="font-size: 14px; font-weight: 800; margin: 0 0 14px;">How to cancel:</h4><div class="cancel-step"><div class="step-num">1</div><div class="step-text">${escapeHtml(instructions)}</div></div><div class="cancel-step"><div class="step-num">2</div><div class="step-text">Look for a confirmation email from ${escapeHtml(s.serviceName)} after cancelling.</div></div><div class="cancel-step"><div class="step-num">3</div><div class="step-text">Come back here and confirm you've cancelled.</div></div><a href="${url}" target="_blank" rel="noopener" class="btn btn-primary mt-16" style="text-decoration: none;">Open Cancellation Page →</a><div class="divider">Then</div><button class="btn btn-accent" onclick="confirmCancellation('${s.id}')">✓ Yes, I cancelled it</button><button class="btn btn-ghost mt-12" onclick="closeModal()">Not yet</button><p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px;">💰 Potential savings: <strong style="color: var(--accent-2);">${formatMoney(yearly, s.currency)}/year</strong></p>`;
+  openModal();
+}
+
+function confirmCancellation(id) {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-content').innerHTML = `<h3>When did you cancel?</h3><p class="modal-sub">We'll calculate your savings from this date</p><div class="form-group"><label>Cancellation date</label><input type="date" class="input" id="cancel-date" value="${today}" max="${today}" /></div><button class="btn btn-primary" onclick="finalizeCancellation('${id}')">Confirm</button><button class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button>`;
+}
+
+function finalizeCancellation(id) {
+  const s = state.subscriptions.find(x => x.id === id); if (!s) return;
+  const cancelDate = document.getElementById('cancel-date').value || new Date().toISOString().split('T')[0];
+  const yearly = calcYearly(s.price, s.billingCycle); const monthly = calcMonthly(s.price, s.billingCycle);
+  s.status = 'cancelled'; s.cancelledAt = cancelDate; s.updatedAt = new Date().toISOString();
+  state.cancellations.push({ id: uid(), userId: s.userId, subscriptionId: s.id, subscriptionName: s.serviceName, cancellationDate: cancelDate, estimatedMonthlySavings: monthly, estimatedYearlySavings: yearly, createdAt: new Date().toISOString() });
+  state.reminders = state.reminders.filter(r => r.subscriptionId !== id || r.status === 'fired');
+  addNotification({ userId: s.userId, type: 'cancel', title: `${s.serviceName} cancelled`, message: `You're saving ${formatMoney(yearly, s.currency)}/year!`, icon: '🎉' });
+  saveAll();
+  document.getElementById('modal-content').innerHTML = `<div style="text-align: center; padding: 20px 0;"><div style="font-size: 64px; margin-bottom: 16px;">🎉</div><h3 style="margin-bottom: 8px;">Great job!</h3><p class="modal-sub">You've successfully cancelled ${escapeHtml(s.serviceName)}</p><div class="card" style="background: var(--accent-soft); border: none; margin: 20px 0;"><div style="font-size: 12px; color: var(--accent-2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">You're saving</div><div style="font-size: 32px; font-weight: 800; color: var(--accent-2); letter-spacing: -1px; margin: 4px 0;">${formatMoney(yearly, s.currency)}</div><div style="font-size: 13px; color: var(--text-2);">per year</div></div><button class="btn btn-primary" onclick="closeModal(); showView('savings');">View My Savings</button></div>`;
+}
+
+function openRefundAssistant(id) {
+  const s = state.subscriptions.find(x => x.id === id); if (!s) return;
+  document.getElementById('modal-content').innerHTML = `<h3>Request a Refund</h3><p class="modal-sub">We'll help you draft a professional refund request</p><div class="form-group"><label>Amount to refund</label><input type="number" class="input" id="refund-amount" value="${s.price}" min="0" step="0.01" required /></div><div class="form-group"><label>Charge date</label><input type="date" class="input" id="refund-date" value="${new Date().toISOString().split('T')[0]}" max="${new Date().toISOString().split('T')[0]}" required /></div><div class="form-group"><label>Why are you requesting a refund?</label><select class="select" id="refund-reason" required><option>Forgot to cancel</option><option>Didn't use the service</option><option>Accidental renewal</option><option>Duplicate charge</option><option>Other</option></select></div><button class="btn btn-primary" onclick="generateRefundMessage('${s.id}')">Generate Message</button><button class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button><p style="font-size: 11px; color: var(--text-3); text-align: center; margin-top: 16px;">Note: Money Guard helps draft requests but cannot guarantee refunds.</p>`;
+  openModal();
+}
+
+function generateRefundMessage(id) {
+  const s = state.subscriptions.find(x => x.id === id); if (!s) return;
+  const amount = parseFloat(document.getElementById('refund-amount').value);
+  const chargeDate = document.getElementById('refund-date').value;
+  const reason = document.getElementById('refund-reason').value;
+  const userName = state.currentUser.name; const userEmail = state.currentUser.email;
+  const reasonText = { 'Forgot to cancel': 'I forgot to cancel my subscription before the renewal date', "Didn't use the service": 'I have not used this service during the current billing period', 'Accidental renewal': 'The subscription renewed automatically without my intention', 'Duplicate charge': 'I was charged twice for the same subscription period', 'Other': 'I have a concern regarding this charge' }[reason] || reason;
+  const message = `Subject: Refund Request for Recent Subscription Charge\n\nDear ${s.serviceName} Support Team,\n\nI am writing to request a refund for a recent charge.\n\nCharge details:\n• Amount: ${formatMoney(amount, s.currency)}\n• Date: ${formatDate(chargeDate)}\n• Reason: ${reasonText}\n\nMy account details:\n• Email: ${userEmail}\n• Name: ${userName}\n\nI would be grateful if you could process this refund.\n\nThank you,\n${userName}`;
+  const template = state.templates.find(t => t.name === s.serviceName);
+  const supportUrl = template?.cancellationUrl || '#';
+  state.refunds.push({ id: uid(), userId: s.userId, subscriptionId: s.id, subscriptionName: s.serviceName, amount, chargeDate, reason, generatedMessage: message, status: 'drafted', createdAt: new Date().toISOString() });
+  saveAll();
+  document.getElementById('modal-content').innerHTML = `<h3>Your Refund Request</h3><p class="modal-sub">Copy the message below and send it to ${escapeHtml(s.serviceName)} support</p><div style="background: var(--surface-2); border-radius: 10px; padding: 14px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; line-height: 1.6; margin-bottom: 16px;" id="refund-msg">${escapeHtml(message)}</div><button class="btn btn-primary" onclick="copyRefundMessage()">📋 Copy Message</button><a href="${supportUrl}" target="_blank" rel="noopener" class="btn btn-outline mt-12" style="text-decoration: none;">Open Support Page →</a><button class="btn btn-ghost mt-12" onclick="closeModal()">Done</button>`;
+  addNotification({ userId: s.userId, type: 'refund', title: 'Refund request ready', message: `Your refund request for ${s.serviceName} has been drafted`, icon: '💸' });
+  saveAll();
+}
+
+function copyRefundMessage() {
+  const msg = document.getElementById('refund-msg').textContent;
+  navigator.clipboard.writeText(msg).then(() => showToast('✓ Message copied', 'success')).catch(() => { const ta = document.createElement('textarea'); ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('✓ Message copied', 'success'); });
+}
+
+function showReviewModal() {
+  const userId = state.currentUser.id;
+  const reviewable = state.subscriptions.filter(s => s.userId === userId && s.status === 'active' && s.notUsing);
+  const content = document.getElementById('modal-content');
+  if (reviewable.length === 0) content.innerHTML = `<h3>Review Subscriptions</h3><p class="modal-sub">Mark subscriptions you're not using</p><div class="empty-state"><div class="emoji">✨</div><h4>Nothing to review</h4><p>Go to any subscription and tap "Mark as Not Using"</p></div><button class="btn btn-primary" onclick="closeModal()">Got it</button>`;
+  else {
+    content.innerHTML = `<h3>Review Your Subscriptions</h3><p class="modal-sub">These are marked as not using</p>${reviewable.map(s => { const yearly = calcYearly(s.price, s.billingCycle); const template = state.templates.find(t => t.name === s.serviceName); const emoji = template?.emoji || s.serviceName.charAt(0).toUpperCase(); const color = template?.color || '#6366f1'; return `<div class="review-card"><div class="r-header"><div class="sub-logo" style="background: ${color}; width: 40px; height: 40px; font-size: 18px;">${escapeHtml(emoji)}</div><div style="flex: 1;"><div style="font-weight: 600;">${escapeHtml(s.serviceName)}</div><div style="font-size: 12px; color: var(--text-2);">${formatMoney(s.price, s.currency)}/${s.billingCycle.toLowerCase()} · Save ${formatMoney(yearly, s.currency)}/yr</div></div></div><div class="r-actions"><button class="btn btn-sm btn-outline" onclick="toggleNotUsing('${s.id}'); closeModal();">Keep Using</button><button class="btn btn-sm btn-danger" onclick="closeModal(); openCancelAssistant('${s.id}');">Cancel</button></div></div>`; }).join('')}<button class="btn btn-primary mt-16" onclick="closeModal()">Done</button>`;
+  }
+  openModal();
+}
+
+function createRemindersForSubscription(sub) {
+  const days = state.settings.reminderDays || [7, 3, 1];
+  days.forEach(d => { const reminderDate = new Date(sub.renewalDate); reminderDate.setDate(reminderDate.getDate() - d); if (reminderDate >= new Date()) state.reminders.push({ id: uid(), userId: sub.userId, subscriptionId: sub.id, reminderDate: reminderDate.toISOString().split('T')[0], daysBefore: d, reminderType: 'renewal', status: 'pending' }); });
+}
+
+function processReminders() {
+  const today = new Date().toISOString().split('T')[0]; const userId = state.currentUser?.id; if (!userId) return;
+  state.reminders.forEach(r => {
+    if (r.userId !== userId || r.status === 'fired' || r.reminderDate > today) return;
+    const sub = state.subscriptions.find(s => s.id === r.subscriptionId); if (!sub || sub.status !== 'active') return;
+    const days = daysUntil(sub.renewalDate);
+    let timeText = days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`;
+    addNotification({ userId: r.userId, type: 'renewal', title: `🛡️ ${sub.serviceName} renews ${timeText}`, message: `${formatMoney(sub.price, sub.currency)} will be charged on ${formatDate(sub.renewalDate)}`, icon: '⏰', subscriptionId: sub.id });
+    r.status = 'fired';
+  });
+  saveAll();
+}
+
+function addNotification(n) { state.notifications.push({ id: uid(), userId: n.userId, type: n.type, title: n.title, message: n.message, icon: n.icon || '🔔', read: false, subscriptionId: n.subscriptionId, createdAt: new Date().toISOString() }); }
+
+function renderNotifications() {
+  const userId = state.currentUser.id;
+  const list = state.notifications.filter(n => n.userId === userId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const container = document.getElementById('notifications-list');
+  if (list.length === 0) container.innerHTML = `<div class="empty-state"><div class="emoji">🔔</div><h4>No notifications yet</h4><p>We'll alert you about renewals, cancellations, and savings</p></div>`;
+  else container.innerHTML = list.map(n => { const typeClass = { renewal: 'renewal', cancel: 'cancel', refund: 'refund', save: 'save' }[n.type] || 'renewal'; return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markRead('${n.id}')"><div class="notif-icon ${typeClass}">${n.icon || '🔔'}</div><div class="notif-content"><div class="title">${escapeHtml(n.title)}</div><div class="msg">${escapeHtml(n.message)}</div><div class="time">${getTimeAgo(n.createdAt)}</div></div></div>`; }).join('');
+  updateNotifBadge();
+}
+
+function markRead(id) { const n = state.notifications.find(x => x.id === id); if (n) { n.read = true; saveAll(); if (n.subscriptionId) openSubscription(n.subscriptionId); else renderNotifications(); } }
+function markAllRead() { const userId = state.currentUser.id; state.notifications.forEach(n => { if (n.userId === userId) n.read = true; }); saveAll(); renderNotifications(); showToast('All marked as read'); }
+function updateNotifBadge() { const userId = state.currentUser?.id; if (!userId) return; const unread = state.notifications.filter(n => n.userId === userId && !n.read).length; const badge = document.getElementById('notif-badge'); if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.classList.remove('hidden'); } else badge.classList.add('hidden'); }
+function getTimeAgo(dateStr) { const diff = Date.now() - new Date(dateStr).getTime(); const mins = Math.floor(diff / 60000); if (mins < 1) return 'Just now'; if (mins < 60) return mins + 'm ago'; const hrs = Math.floor(mins / 60); if (hrs < 24) return hrs + 'h ago'; const days = Math.floor(hrs / 24); if (days < 7) return days + 'd ago'; return formatDate(dateStr); }
+
+function renderSavings() {
+  const userId = state.currentUser.id;
+  const cancellations = state.cancellations.filter(c => c.userId === userId);
+  const refunds = state.refunds.filter(r => r.userId === userId);
+  const yearlySavings = cancellations.reduce((sum, c) => sum + (c.estimatedYearlySavings || 0), 0);
+  const monthlySavings = cancellations.reduce((sum, c) => sum + (c.estimatedMonthlySavings || 0), 0);
+  const refundTotal = refunds.reduce((sum, r) => sum + (r.amount || 0), 0);
+  const total = yearlySavings + refundTotal;
+  document.getElementById('savings-total').textContent = formatMoney(total);
+  document.getElementById('savings-cancelled').textContent = cancellations.length;
+  document.getElementById('savings-yearly').textContent = formatMoney(yearlySavings);
+  document.getElementById('savings-monthly').textContent = formatMoney(monthlySavings);
+  document.getElementById('savings-refunds').textContent = formatMoney(refundTotal);
+  const chart = document.getElementById('savings-chart'); const labels = document.getElementById('savings-chart-labels');
+  const months = []; const now = new Date();
+  for (let i = 5; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({ key: d.toISOString().slice(0, 7), label: d.toLocaleDateString('en-IN', { month: 'short' }) }); }
+  const monthData = months.map(m => cancellations.filter(c => (c.cancellationDate || '').startsWith(m.key)).reduce((sum, c) => sum + (c.estimatedMonthlySavings || 0), 0));
+  const max = Math.max(...monthData, 1);
+  chart.innerHTML = monthData.map(v => `<div class="chart-bar" style="height: ${Math.max((v / max) * 100, 5)}%;" title="${formatMoney(v)}"></div>`).join('');
+  labels.innerHTML = months.map(m => `<span>${m.label}</span>`).join('');
+  const history = document.getElementById('cancellation-history');
+  if (cancellations.length === 0) history.innerHTML = `<div class="empty-state" style="padding: 20px 0;"><div class="emoji">🎯</div><h4>No cancellations yet</h4><p>Start cancelling subscriptions to see your savings grow</p></div>`;
+  else history.innerHTML = cancellations.sort((a, b) => new Date(b.cancellationDate) - new Date(a.cancellationDate)).map(c => { const template = state.templates.find(t => t.name === c.subscriptionName); const emoji = template?.emoji || c.subscriptionName.charAt(0).toUpperCase(); const color = template?.color || '#6366f1'; return `<div class="history-item"><div class="h-logo" style="background: ${color};">${escapeHtml(emoji)}</div><div class="h-info"><div class="h-name">${escapeHtml(c.subscriptionName)}</div><div class="h-date">Cancelled ${formatDate(c.cancellationDate)}</div></div><div class="h-saved">Saved ${formatMoney(c.estimatedYearlySavings)}/yr</div></div>`; }).join('');
+}
+
+function renderProfile() { const u = state.currentUser; document.getElementById('profile-name').textContent = u.name; document.getElementById('profile-email').textContent = u.email; document.getElementById('profile-avatar').textContent = u.name.charAt(0).toUpperCase(); document.getElementById('currency-display').textContent = state.settings.currencySymbol + ' ' + state.settings.currency; document.getElementById('reminder-summary').textContent = (state.settings.reminderDays || []).length + ' reminders'; }
+
+function openReminderSettings() {
+  const days = state.settings.reminderDays || [7, 3, 1];
+  const allDays = [{ d: 14, label: '14 days before' }, { d: 7, label: '7 days before' }, { d: 3, label: '3 days before' }, { d: 1, label: '1 day before' }, { d: 0, label: 'On renewal day' }];
+  document.getElementById('modal-content').innerHTML = `<h3>Reminder Settings</h3><p class="modal-sub">Choose when to get renewal reminders</p><div id="reminder-options">${allDays.map(opt => `<label style="display: flex; align-items: center; padding: 12px; background: var(--surface-2); border-radius: 10px; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" value="${opt.d}" ${days.includes(opt.d) ? 'checked' : ''} style="width: 18px; height: 18px; margin-right: 12px;" /><span style="font-weight: 500;">${opt.label}</span></label>`).join('')}</div><button class="btn btn-primary mt-16" onclick="saveReminderSettings()">Save</button><button class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button>`;
+  openModal();
+}
+function saveReminderSettings() { state.settings.reminderDays = Array.from(document.querySelectorAll('#reminder-options input:checked')).map(c => parseInt(c.value)).sort((a, b) => b - a); saveAll(); closeModal(); renderProfile(); showToast('✓ Reminder settings saved', 'success'); }
+
+function openCurrencySettings() {
+  document.getElementById('modal-content').innerHTML = `<h3>Currency</h3><p class="modal-sub">Choose your preferred currency</p>${Object.keys(CURRENCIES).map(c => `<label style="display: flex; align-items: center; padding: 12px; background: var(--surface-2); border-radius: 10px; margin-bottom: 8px; cursor: pointer;"><input type="radio" name="currency" value="${c}" ${c === state.settings.currency ? 'checked' : ''} style="width: 18px; height: 18px; margin-right: 12px;" /><span style="font-weight: 500;">${CURRENCIES[c].symbol} ${CURRENCIES[c].name} (${c})</span></label>`).join('')}<button class="btn btn-primary mt-16" onclick="saveCurrency()">Save</button><button class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button>`;
+  openModal();
+}
+function saveCurrency() { const selected = document.querySelector('input[name="currency"]:checked').value; state.settings.currency = selected; state.settings.currencySymbol = CURRENCIES[selected].symbol; saveAll(); closeModal(); renderProfile(); renderDashboard(); showToast('✓ Currency updated', 'success'); }
+
+function showAdminPanel() { showView('admin'); }
+function renderAdmin() {
+  document.getElementById('admin-users').textContent = state.users.length;
+  document.getElementById('admin-subs').textContent = state.subscriptions.length;
+  document.getElementById('admin-cancels').textContent = state.cancellations.length;
+  document.getElementById('admin-refunds').textContent = state.refunds.length;
+  document.getElementById('admin-templates').innerHTML = state.templates.map((t, i) => `<div class="sub-card" onclick="editTemplate(${i})"><div class="sub-logo" style="background: ${t.color};">${escapeHtml(t.emoji)}</div><div class="sub-info"><div class="name">${escapeHtml(t.name)}</div><div class="meta"><span>${escapeHtml(t.category)}</span></div></div><div class="sub-right"><button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); deleteTemplate(${i})">✕</button></div></div>`).join('');
+  document.getElementById('admin-users-list').innerHTML = state.users.map(u => { const subCount = state.subscriptions.filter(s => s.userId === u.id).length; return `<div class="history-item"><div class="h-logo" style="background: var(--primary);">${u.name.charAt(0).toUpperCase()}</div><div class="h-info"><div class="h-name">${escapeHtml(u.name)}</div><div class="h-date">${escapeHtml(u.email)} · ${subCount} subs</div></div></div>`; }).join('') || '<p style="color: var(--text-2); text-align: center; padding: 20px;">No users yet</p>';
+  const recentCancels = state.cancellations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10);
+  document.getElementById('admin-cancellations-list').innerHTML = recentCancels.map(c => { const user = state.users.find(u => u.id === c.userId); return `<div class="history-item"><div class="h-info"><div class="h-name">${escapeHtml(c.subscriptionName)}</div><div class="h-date">${user ? escapeHtml(user.name) : 'Unknown'} · ${formatDate(c.cancellationDate)}</div></div><div class="h-saved">Saved ${formatMoney(c.estimatedYearlySavings)}/yr</div></div>`; }).join('') || '<p style="color: var(--text-2); text-align: center; padding: 20px;">No cancellations yet</p>';
+}
+
+function openAddTemplate() {
+  document.getElementById('modal-content').innerHTML = `<h3>Add Service Template</h3><p class="modal-sub">Add a new subscription service</p><form id="form-template"><div class="form-group"><label>Service name</label><input type="text" class="input" id="t-name" required /></div><div class="input-row"><div class="form-group"><label>Emoji/Icon</label><input type="text" class="input" id="t-emoji" maxlength="2" value="★" required /></div><div class="form-group"><label>Color</label><input type="color" class="input" id="t-color" value="#6366f1" style="height: 44px; padding: 4px;" /></div></div><div class="form-group"><label>Category</label><select class="select" id="t-category"><option>Entertainment</option><option>Software</option><option>Shopping</option><option>Fitness</option><option>Education</option><option>Productivity</option><option>Cloud Storage</option><option>Music</option><option>Other</option></select></div><div class="form-group"><label>Cancellation URL</label><input type="url" class="input" id="t-url" placeholder="https://..." /></div><div class="form-group"><label>Cancellation instructions</label><textarea class="textarea" id="t-instructions" placeholder="Step-by-step instructions..."></textarea></div><button type="submit" class="btn btn-primary">Add Template</button><button type="button" class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button></form>`;
+  openModal();
+  document.getElementById('form-template').addEventListener('submit', e => { e.preventDefault(); state.templates.push({ name: document.getElementById('t-name').value.trim(), emoji: document.getElementById('t-emoji').value.trim() || '★', color: document.getElementById('t-color').value, category: document.getElementById('t-category').value, cancellationUrl: document.getElementById('t-url').value.trim(), instructions: document.getElementById('t-instructions').value.trim() }); saveAll(); closeModal(); renderAdmin(); showToast('✓ Template added', 'success'); });
+}
+
+function editTemplate(i) {
+  const t = state.templates[i];
+  document.getElementById('modal-content').innerHTML = `<h3>Edit Template</h3><p class="modal-sub">${escapeHtml(t.name)}</p><form id="form-template-edit"><div class="form-group"><label>Service name</label><input type="text" class="input" id="t-name" value="${escapeHtml(t.name)}" required /></div><div class="input-row"><div class="form-group"><label>Emoji/Icon</label><input type="text" class="input" id="t-emoji" value="${escapeHtml(t.emoji)}" maxlength="2" required /></div><div class="form-group"><label>Color</label><input type="color" class="input" id="t-color" value="${t.color}" style="height: 44px; padding: 4px;" /></div></div><div class="form-group"><label>Category</label><select class="select" id="t-category">${['Entertainment','Software','Shopping','Fitness','Education','Productivity','Cloud Storage','Music','Other'].map(c => `<option ${c === t.category ? 'selected' : ''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Cancellation URL</label><input type="url" class="input" id="t-url" value="${escapeHtml(t.cancellationUrl || '')}" /></div><div class="form-group"><label>Cancellation instructions</label><textarea class="textarea" id="t-instructions">${escapeHtml(t.instructions || '')}</textarea></div><button type="submit" class="btn btn-primary">Save</button><button type="button" class="btn btn-ghost mt-12" onclick="closeModal()">Cancel</button></form>`;
+  openModal();
+  document.getElementById('form-template-edit').addEventListener('submit', e => { e.preventDefault(); t.name = document.getElementById('t-name').value.trim(); t.emoji = document.getElementById('t-emoji').value.trim(); t.color = document.getElementById('t-color').value; t.category = document.getElementById('t-category').value; t.cancellationUrl = document.getElementById('t-url').value.trim(); t.instructions = document.getElementById('t-instructions').value.trim(); saveAll(); closeModal(); renderAdmin(); showToast('✓ Template updated', 'success'); });
+}
+
+function deleteTemplate(i) { if (!confirm('Delete this template?')) return; state.templates.splice(i, 1); saveAll(); renderAdmin(); showToast('Template deleted'); }
+
+function openModal() { document.getElementById('modal-backdrop').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeModal(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('modal-backdrop').classList.remove('active'); document.body.style.overflow = ''; }
+
+function init() {
+  if (state.currentUser) { if (!state.users.find(u => u.id === state.currentUser.id)) { state.currentUser = null; saveAll(); showView('auth'); } else enterApp(); }
+  else showView('auth');
+  updateNotifBadge();
+}
+
+window.showAuth = showAuth; window.handleLogin = handleLogin; window.handleSignup = handleSignup;
+window.handleForgotPassword = handleForgotPassword; window.handleGoogleSignIn = handleGoogleSignIn;
+window.logout = logout; window.deleteAccount = deleteAccount; window.showView = showView;
+window.openAddSubscription = openAddSubscription; window.setSubTab = setSubTab; window.setCategory = setCategory;
+window.openSubscription = openSubscription; window.editCurrentSubscription = editCurrentSubscription;
+window.toggleNotUsing = toggleNotUsing; window.deleteSubscription = deleteSubscription;
+window.reactivateSubscription = reactivateSubscription; window.openCancelAssistant = openCancelAssistant;
+window.confirmCancellation = confirmCancellation; window.finalizeCancellation = finalizeCancellation;
+window.openRefundAssistant = openRefundAssistant; window.generateRefundMessage = generateRefundMessage;
+window.copyRefundMessage = copyRefundMessage; window.showReviewModal = showReviewModal;
+window.markRead = markRead; window.markAllRead = markAllRead;
+window.openReminderSettings = openReminderSettings; window.saveReminderSettings = saveReminderSettings;
+window.openCurrencySettings = openCurrencySettings; window.saveCurrency = saveCurrency;
+window.showAdminPanel = showAdminPanel; window.openAddTemplate = openAddTemplate;
+window.editTemplate = editTemplate; window.deleteTemplate = deleteTemplate;
+window.closeModal = closeModal; window.showToast = showToast;
+
+init();
+</script>
+</body>
+</html>
